@@ -14,7 +14,9 @@ export default class ObjectiveQuestionaire extends Component{
     }
 
     componentWillReceiveProps(nextProps){
-        this.setState({userAnswer: ''});
+        if(nextProps.question != this.props.question){
+            this.setState({userAnswer: ''});
+        } 
     }
 
     onUserInputAnswerChange(event){

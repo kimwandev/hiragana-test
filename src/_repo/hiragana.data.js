@@ -197,7 +197,7 @@ const hiraganaData = [
     },
     {
         "id" : 40,
-        "romaji": "ri",
+        "romaji": "ru",
         "character" : "る"
     },
     {
@@ -344,6 +344,11 @@ const hiraganaData = [
         "id" : 68,
         "romaji": "po",
         "character" : "ぽ"
+    },
+    {
+        "id" : 69,
+        "romaji" : "ri",
+        "character": "り"
     }
 ]
 

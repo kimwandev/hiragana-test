@@ -16,7 +16,17 @@ class Main extends Component{
             correctAnswer: '',
             questionaireClass: 'form-group animated',
             numberOfItems: null,
-            userInputItemNumbers: ''
+            userInputItemNumbers: '',
+            currentItemNumber: 0,
+            currentView: '',
+            views: {
+                numberOfItemsSelection: 'numberOfItemsSelection',
+                hiraganaTestView: 'hiraganaTestView',
+                resultsView: 'resultsView'
+            },
+            numberOfCorrectAnswers: 0, 
+            timer: 0,
+            timerInstance: null
         }
 
         this.onUserAnswerCorrectly = this.onUserAnswerCorrectly.bind(this);
@@ -25,43 +35,62 @@ class Main extends Component{
         this.renderNotification = this.renderNotification.bind(this);
         this.renderHiraganaTest = this.renderHiraganaTest.bind(this);
         this.onUserInputItemNumbersChange = this.onUserInputItemNumbersChange.bind(this);
+        this.showAnswerNotificationFeedback = this.showAnswerNotificationFeedback.bind(this);
+        this.shouldShowView = this.shouldShowView.bind(this);
+        this.selectNumberOfItems = this.selectNumberOfItems.bind(this);
+        this.resetTest = this.resetTest.bind(this);
     }
 
     componentWillMount(){
+        this.setState({currentView: this.state.views.numberOfItemsSelection});
         this.fetchNewHiragana();
+    }
+
+    resetTest(){
+        this.setState({numberOfItems: 0, currentView: this.state.views.numberOfItemsSelection, userInputItemNumbers: '', numberOfCorrectAnswers: 0, timer: 0});
+    }
+
+    showAnswerNotificationFeedback(isCorrect){
+        const currentItemNumber = this.state.currentItemNumber + 1;
+
+        if(isCorrect){
+            const numberOfCorrectAnswers = this.state.numberOfCorrectAnswers + 1;
+            this.setState({numberOfCorrectAnswers: numberOfCorrectAnswers})
+        }
+
+        if(currentItemNumber == this.state.numberOfItems){
+            clearInterval(this.state.timerInstance);
+            this.setState({currentView:this.state.views.resultsView})
+        }
+        else{
+            if(this.state.notificationTimeoutInstance){
+                clearTimeout(this.state.notificationTimeoutInstance);
+            }
+
+            const timeoutInstance = setTimeout(() => {
+                this.setState({shouldShowNotification:false});
+            }, 4000);
+
+            this.setState({shouldShowNotification:true, isAnswerCorrect: isCorrect, notificationTimeoutInstance: timeoutInstance, currentItemNumber: currentItemNumber});
+
+            this.fetchNewHiragana();
+        }
     }
 
     onUserAnswerCorrectly(){
-        if(this.state.notificationTimeoutInstance){
-            clearTimeout(this.state.notificationTimeoutInstance);
-        }
-
-        const timeoutInstance = setTimeout(() => {
-            this.setState({shouldShowNotification:false});
-        }, 4000);
-
-        this.setState({shouldShowNotification:true, isAnswerCorrect: true, notificationTimeoutInstance: timeoutInstance});
-        this.fetchNewHiragana();
+        this.showAnswerNotificationFeedback(true);
     }
 
     onUserAnswerIncorrectly(){
-        if(this.state.notificationTimeoutInstance){
-            clearTimeout(this.state.notificationTimeoutInstance);
-        }
-
         let questionaireClass = 'form-group animated shake';
 
-        const timeoutInstance = setTimeout(() => {
-            this.setState({shouldShowNotification:false});
-        }, 3000);
-
-        this.setState({shouldShowNotification:true, isAnswerCorrect:false, notificationTimeoutInstance: timeoutInstance, correctAnswer: this.state.currentHiraganaItem.romaji, questionaireClass: questionaireClass});
+        this.setState({correctAnswer: this.state.currentHiraganaItem.romaji, questionaireClass: questionaireClass});
 
         setTimeout(() => {
             this.setState({questionaireClass:'form-group animated'});
         }, 1000);
 
-        this.fetchNewHiragana();
+        this.showAnswerNotificationFeedback(false);
     }
 
     fetchNewHiragana(){
@@ -69,9 +98,31 @@ class Main extends Component{
         this.setState({currentHiraganaItem:hiraganaItem});
     }
 
+    selectNumberOfItems(){
+        if(this.state.userInputItemNumbers > 0){
+            const timerInstance = setInterval(() => {
+                const timer = this.state.timer + 1;
+                this.setState({timer:timer});
+            }, 1000)
+            this.setState({
+                numberOfItems:this.state.userInputItemNumbers, 
+                currentItemNumber: 0, 
+                currentView: this.state.views.hiraganaTestView, 
+                timerInstance: timerInstance
+            });
+        }
+    }
+
     onUserInputItemNumbersChange(event){
         const value = event.target.value;
-        this.setState({onUserInputItemNumbersChange:value})
+        this.setState({userInputItemNumbers:value})
+    }
+
+    shouldShowView(view){
+        if(this.state.currentView == view){
+            return true;
+        }
+        return false;
     }
 
     renderNotification(){
@@ -97,18 +148,7 @@ class Main extends Component{
     }
 
     renderHiraganaTest(){
-        if(true){
-            return (
-                <div>
-                    <ObjectiveQuestionaire 
-                        className={this.state.questionaireClass} 
-                        question={this.state.currentHiraganaItem.character} 
-                        answer={this.state.currentHiraganaItem.romaji} 
-                        correctAnswerHandler={this.onUserAnswerCorrectly} 
-                        incorrectAnswerHandler={this.onUserAnswerIncorrectly} />
-                </div>
-            )
-        }else{
+        if(this.shouldShowView(this.state.views.numberOfItemsSelection)){
             return (
                 <div>
                     <br />
@@ -119,10 +159,36 @@ class Main extends Component{
                             className="form-control" 
                             placeholder="Enter Number of Items"
                             onChange={this.onUserInputItemNumbersChange} />
-                        <button className="btn btn-primary btn-block">Submit</button>
+                        <button className="btn btn-primary btn-block" onClick={this.selectNumberOfItems}>Submit</button>
                     </div>
                 </div>
             )
+        } else if(this.shouldShowView(this.state.views.hiraganaTestView)) {
+            return (
+                <div>
+                    <ObjectiveQuestionaire 
+                        className={this.state.questionaireClass} 
+                        question={this.state.currentHiraganaItem.character} 
+                        answer={this.state.currentHiraganaItem.romaji} 
+                        correctAnswerHandler={this.onUserAnswerCorrectly} 
+                        incorrectAnswerHandler={this.onUserAnswerIncorrectly} />
+                    <div className="text-center text-muted">
+                        {this.state.timer}.0s
+                    </div>
+                </div>
+            )
+        } else if(this.shouldShowView(this.state.views.resultsView)){
+            return (
+                <div className="center-block form-group">
+                    <h1 className="text-center text-primary">Results</h1>
+                    <h2 className="text-primary text-center">
+                        Score: {this.state.numberOfCorrectAnswers} / {this.state.numberOfItems} <br />
+                        Avg. Time: {this.state.timer/this.state.numberOfItems} seconds <br/>
+                        Total Time: {this.state.timer}
+                    </h2>
+                    <button className="btn btn-success center-block" onClick={this.resetTest}>Try Again</button>
+                </div>
+            );
         }
     }
 

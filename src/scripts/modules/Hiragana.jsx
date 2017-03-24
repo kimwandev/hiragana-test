@@ -4,6 +4,7 @@ import ObjectiveQuestionaire from '../components/ObjectiveQuestionaire.jsx';
 import Alert from '../components/Notification/Alert.jsx';
 import NumberSelector from '../components/NumberSelector.jsx';
 import TestResult from '../components/TestResult.jsx';
+import * as HiraganaActions from '../../_actions/HiraganaActions.js';
 
 export default class Hiragana extends Component{
     constructor(){
@@ -145,6 +146,10 @@ export default class Hiragana extends Component{
         }
     }
 
+    showToastr(){
+        HiraganaActions.AddNewVocabulary();
+    }
+
     renderHiraganaTest(){
         if(this.shouldShowView(this.state.views.numberOfItemsSelection)){
             return (
@@ -188,6 +193,8 @@ export default class Hiragana extends Component{
                 <h1 className="text-center">Hiragana Proficiency Test</h1>
                 {this.renderHiraganaTest()}
                 {this.renderNotification()}
+                <div className="clearfix"></div>
+                <button className="btn btn-success" onClick={this.showToastr}>Show Toast</button>
             </div>
         )
     }

@@ -9,6 +9,7 @@ class ToastrStore extends EventEmitter{
     handleActions(action){
         switch(action.type){
             case "SHOW_SUCCESS_TOAST":
+                this.emit('change');
                 break;
         }
     }

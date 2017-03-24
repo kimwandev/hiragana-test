@@ -5,14 +5,26 @@ export default class Toastr extends Component {
         super();
 
         this.state = {
-            message : 'toaster'
+            message : 'toaster',
+            className: ''
         }
+    }
+
+    componentWillMount(){
+        this.setState({className: 'toaster-container animated fadeIn'})
+    }
+
+    componentWillReceiveProps(nextProps){
+        // let shouldNotShow = !nextProps.shouldShow;
+        // if(shouldNotShow){
+        //     this.setState({className: 'toaster-container animated fadeOut'});
+        // }
     }
 
     render(){
         if(this.props.shouldShow){
             return (
-                <div className="toaster-container">
+                <div className={this.state.className}>
                     Toaster {this.state.message}
                 </div>
             )

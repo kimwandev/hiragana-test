@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
-import * as hiraganaService from '../_services/hiragana.service.js';
-import ObjectiveQuestionaire from './components/ObjectiveQuestionaire.jsx';
-import Alert from './components/Notification/Alert.jsx';
+import * as hiraganaService from '../../_services/hiragana.service.js';
+import ObjectiveQuestionaire from '../components/ObjectiveQuestionaire.jsx';
+import Alert from '../components/Notification/Alert.jsx';
+import NumberSelector from '../components/NumberSelector.jsx';
+import TestResult from '../components/TestResult.jsx';
 
-class Main extends Component{
+export default class Hiragana extends Component{
     constructor(){
         super();
 
@@ -16,7 +17,6 @@ class Main extends Component{
             correctAnswer: '',
             questionaireClass: 'form-group animated',
             numberOfItems: null,
-            userInputItemNumbers: '',
             currentItemNumber: 0,
             currentView: '',
             views: {
@@ -34,7 +34,6 @@ class Main extends Component{
         this.fetchNewHiragana = this.fetchNewHiragana.bind(this);
         this.renderNotification = this.renderNotification.bind(this);
         this.renderHiraganaTest = this.renderHiraganaTest.bind(this);
-        this.onUserInputItemNumbersChange = this.onUserInputItemNumbersChange.bind(this);
         this.showAnswerNotificationFeedback = this.showAnswerNotificationFeedback.bind(this);
         this.shouldShowView = this.shouldShowView.bind(this);
         this.selectNumberOfItems = this.selectNumberOfItems.bind(this);
@@ -58,9 +57,13 @@ class Main extends Component{
             this.setState({numberOfCorrectAnswers: numberOfCorrectAnswers})
         }
 
-        if(currentItemNumber == this.state.numberOfItems){
+        const isTestFinish = currentItemNumber == this.state.numberOfItems;
+
+        if(isTestFinish){
             clearInterval(this.state.timerInstance);
-            this.setState({currentView:this.state.views.resultsView})
+            setTimeout(() => {
+                this.setState({currentView:this.state.views.resultsView})
+            }, 2000);
         }
         else{
             if(this.state.notificationTimeoutInstance){
@@ -98,24 +101,19 @@ class Main extends Component{
         this.setState({currentHiraganaItem:hiraganaItem});
     }
 
-    selectNumberOfItems(){
-        if(this.state.userInputItemNumbers > 0){
+    selectNumberOfItems(numberOfItems){
+        if(numberOfItems > 0){
             const timerInstance = setInterval(() => {
                 const timer = this.state.timer + 1;
                 this.setState({timer:timer});
             }, 1000)
             this.setState({
-                numberOfItems:this.state.userInputItemNumbers, 
+                numberOfItems:numberOfItems, 
                 currentItemNumber: 0, 
                 currentView: this.state.views.hiraganaTestView, 
                 timerInstance: timerInstance
             });
         }
-    }
-
-    onUserInputItemNumbersChange(event){
-        const value = event.target.value;
-        this.setState({userInputItemNumbers:value})
     }
 
     shouldShowView(view){
@@ -152,15 +150,11 @@ class Main extends Component{
             return (
                 <div>
                     <br />
-                    <div className="col-sm-4 col-sm-offset-4 form-group">
-                        <label className="control-label">Please select number of items</label>
-                        <input type="number" 
-                            value={this.state.userInputItemNumbers} 
-                            className="form-control" 
-                            placeholder="Enter Number of Items"
-                            onChange={this.onUserInputItemNumbersChange} />
-                        <button className="btn btn-primary btn-block" onClick={this.selectNumberOfItems}>Submit</button>
-                    </div>
+                    <NumberSelector 
+                        className="col-sm-4 col-sm-offset-4 form-group" 
+                        label="Please select number of items" 
+                        placeholder="Enter Number of Items"
+                        submitHandler={this.selectNumberOfItems}  />
                 </div>
             )
         } else if(this.shouldShowView(this.state.views.hiraganaTestView)) {
@@ -179,15 +173,11 @@ class Main extends Component{
             )
         } else if(this.shouldShowView(this.state.views.resultsView)){
             return (
-                <div className="center-block form-group">
-                    <h1 className="text-center text-primary">Results</h1>
-                    <h2 className="text-primary text-center">
-                        Score: {this.state.numberOfCorrectAnswers} / {this.state.numberOfItems} <br />
-                        Avg. Time: {this.state.timer/this.state.numberOfItems} seconds <br/>
-                        Total Time: {this.state.timer}
-                    </h2>
-                    <button className="btn btn-success center-block" onClick={this.resetTest}>Try Again</button>
-                </div>
+                <TestResult 
+                    totalDurationInSeconds={this.state.timer}
+                    totalNumberOfItems={this.state.numberOfItems}
+                    numberOfCorrectAnswers={this.state.numberOfCorrectAnswers}
+                    tryAgainHandler={this.resetTest} />
             );
         }
     }
@@ -197,11 +187,8 @@ class Main extends Component{
             <div className="container">
                 <h1 className="text-center">Hiragana Proficiency Test</h1>
                 {this.renderHiraganaTest()}
-                
                 {this.renderNotification()}
             </div>
         )
     }
 }
-
-ReactDOM.render(<Main />, document.getElementById('root'));

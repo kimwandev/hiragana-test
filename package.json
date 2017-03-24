@@ -2,11 +2,10 @@
   "name": "hiragana-test",
   "version": "1.0.0",
   "description": "\"# hiragana-test\"",
-  "main": "index.js",
+  "main": "./public/index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "start": "webpack-dev-server -d --progress --colors --display-error-details"
+    "start": "webpack-dev-server"
   },
   "repository": {
     "type": "git",
@@ -28,13 +27,17 @@
     "babel-preset-stage-2": "^6.13.0",
     "css-loader": "^0.23.1",
     "flux": "^3.1.2",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.2",
     "lodash": "^4.17.4",
     "postcss-loader": "^0.9.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-hot-loader": "^3.0.0-beta.6",
-    "style-loader": "^0.13.1",
-    "webpack": "^2.1.0-beta.25",
+    "react-router": "^4.0.0",
+    "react-router-dom": "^4.0.0",
+    "style-loader": "^0.13.2",
+    "webpack": "^2.2.0",
     "webpack-dev-server": "^2.1.0-beta.0"
   }
 }

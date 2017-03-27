@@ -5,6 +5,7 @@ import Alert from '../components/Notification/Alert.jsx';
 import NumberSelector from '../components/NumberSelector.jsx';
 import TestResult from '../components/TestResult.jsx';
 import * as HiraganaActions from '../../_actions/HiraganaActions.js';
+import {Toast} from 'react-toastr-basic';
 
 export default class Hiragana extends Component{
     constructor(){
@@ -44,6 +45,7 @@ export default class Hiragana extends Component{
     componentWillMount(){
         this.setState({currentView: this.state.views.numberOfItemsSelection});
         this.fetchNewHiragana();
+        hiraganaService.getAllHiragana();
     }
 
     resetTest(){
@@ -147,7 +149,7 @@ export default class Hiragana extends Component{
     }
 
     showToastr(){
-        HiraganaActions.AddNewVocabulary();
+        Toast('Toast');
     }
 
     renderHiraganaTest(){

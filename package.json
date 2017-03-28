@@ -2,10 +2,11 @@
   "name": "hiragana-test",
   "version": "1.0.0",
   "description": "\"# hiragana-test\"",
-  "main": "./public/index.html",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server"
+    "build": "webpack",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -40,5 +41,8 @@
     "style-loader": "^0.13.2",
     "webpack": "^2.2.0",
     "webpack-dev-server": "^2.1.0-beta.0"
+  },
+  "dependencies": {
+    "express": "^4.15.2"
   }
 }
